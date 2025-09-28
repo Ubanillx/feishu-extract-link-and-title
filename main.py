@@ -105,4 +105,4 @@ if __name__ == "__main__":
     import uvicorn
 
     # 生产环境建议使用命令行启动: `uvicorn main.api:app --reload`
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8002)
