@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONUNBUFFERED=1
+    volumes:
+      # 如果需要开发模式，可以挂载代码目录
+      # - .:/app
+      - /dev/shm:/dev/shm  # 提高 Playwright 性能
+    restart: unless-stopped
+    # 增加内存限制以确保 Playwright 正常运行
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+        reservations:
+          memory: 512M
