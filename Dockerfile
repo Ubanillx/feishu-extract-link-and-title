@@ -6,16 +6,16 @@ WORKDIR /app
 
 # 复制 requirements.txt 并安装 Python 依赖
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -i https://pypi.tuna.tsinghua.edu.cn/simple/ -r requirements.txt
 
 # 复制应用代码
 COPY main.py .
 
 # 暴露端口
-EXPOSE 8000
+EXPOSE 8002
 
 # 设置环境变量
 ENV PYTHONUNBUFFERED=1
 
 # 启动命令
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8002"]
