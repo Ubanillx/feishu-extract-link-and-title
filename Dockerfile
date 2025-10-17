@@ -12,10 +12,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY main.py .
 
 # 暴露端口
-EXPOSE 8000
+EXPOSE 8002
 
 # 设置环境变量
 ENV PYTHONUNBUFFERED=1
 
 # 启动命令
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8002"]

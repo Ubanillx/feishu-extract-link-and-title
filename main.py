@@ -43,8 +43,8 @@ class TaskResponse(BaseModel):
 
 
 # --- 全局变量和配置 ---
-# 并发控制配置
-MAX_CONCURRENT_TASKS = 3  # 最大并发任务数
+# 任务控制配置
+MAX_CONCURRENT_TASKS = 1  # 最大并发任务数（设置为1实现串行处理）
 TASK_TIMEOUT = 300  # 任务超时时间（秒）
 CLEANUP_INTERVAL = 60  # 清理过期任务的间隔（秒）
 
@@ -57,7 +57,7 @@ task_semaphore = asyncio.Semaphore(MAX_CONCURRENT_TASKS)
 # --- FastAPI 应用初始化 ---
 app = FastAPI(
     title="网页抓取 API",
-    description="一个使用 Playwright 从给定 URL 抓取所有链接的 API，支持并发控制和任务队列。",
+    description="一个使用 Playwright 从给定 URL 抓取所有链接的 API，支持任务队列和串行处理。",
     version="2.0.0",
 )
 
@@ -77,14 +77,14 @@ async def cleanup_expired_tasks():
         logger.info(f"清理过期任务: {task_id}")
 
 async def task_worker():
-    """任务工作器，从队列中获取任务并处理"""
+    """任务工作器，从队列中获取任务并串行处理"""
     while True:
         try:
             # 等待队列中的任务
             task_info = await task_queue.get()
             task_id = task_info.task_id
             
-            # 获取信号量（控制并发数）
+            # 获取信号量（串行处理，一次只处理一个任务）
             async with task_semaphore:
                 try:
                     # 更新任务状态为处理中
@@ -130,9 +130,8 @@ async def task_worker():
 
 async def start_background_tasks():
     """启动后台任务"""
-    # 启动任务工作器
-    for i in range(MAX_CONCURRENT_TASKS):
-        asyncio.create_task(task_worker())
+    # 启动单个任务工作器（串行处理）
+    asyncio.create_task(task_worker())
     
     # 启动清理任务
     async def cleanup_loop():
@@ -141,7 +140,7 @@ async def start_background_tasks():
             await cleanup_expired_tasks()
     
     asyncio.create_task(cleanup_loop())
-    logger.info(f"启动 {MAX_CONCURRENT_TASKS} 个任务工作器和清理任务")
+    logger.info("启动单个任务工作器（串行处理）和清理任务")
 
 # --- 异步爬虫函数 ---
 async def auto_scroll(page, max_steps=15, delay=1):
